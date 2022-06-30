@@ -69,8 +69,8 @@ mtx_plot_spc(dir = dt$wd.mastermodel
 
 # Plot and write subspectra ####
 dt$parameter
-for(i in 1 : length(dt$parameter) )
-  # for(i in c(4))
+for(i in 1:length(dt$parameter) ){
+  #for(i in c(1))
   mtx_plot_spc(dir = dt$wd.mastermodel
                , beverage = dt$para$beverage
                , parameter = dt$parameter[ i ]
@@ -82,6 +82,7 @@ for(i in 1 : length(dt$parameter) )
                , colp = NA
                , subfiles = NA
                , write = F)
+}
 
 # Plot and write VAS ####
 mtx_plot_spc(dir = dt$wd.valset

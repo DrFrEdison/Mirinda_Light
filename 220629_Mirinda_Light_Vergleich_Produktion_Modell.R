@@ -25,7 +25,7 @@ unique( as.Date(bev$raw$prod$datetime))
 
 bev$raw$prod <- bev$raw$prod[ round(seq(1, nrow(bev$raw$prod), len = 100), 0) , ]
 
-# bev$raw$Ausmischung <- read.csv2("220615_Max_Lemon_FG.csv")
+bev$raw$Ausmischung <- read.csv2("220630_Mirinda_Light_spc.csv")
 # bev$raw$Ausmischung <- bev$raw$Ausmischung[ bev$raw$Ausmischung$Probe_Anteil != "SL" , ]
 
 # bev$raw$altes.model <- read.csv2("220413_Mezzo_Mix_Zero_Modellspektren_Ausmischung_match.csv")
@@ -39,7 +39,7 @@ par(mfrow = c(2,1), mar = c(4,5,1,1))
 
 matplot( bev$trs$Ausmischung$wl
         , t(bev$trs$Ausmischung$spc)
-        , type = "l", lty = 1, col = "red", xlab = lambda, ylab = "AU", xlim = c(200, 450), ylim = c(0, 2))
+        , type = "l", lty = 1, col = "red", xlab = lambda, ylab = "AU", xlim = c(200, 450), ylim = c(0, 3.5))
 
 matplot( bev$trs$prod$wl
         , t(bev$trs$prod$spc)[ ]
@@ -60,7 +60,7 @@ legend("topright", c("Ausmischung"
 
 matplot(bev$trs$Ausmischung$wl
         , t(bev$trs$Ausmischung$spc1st)
-        , type = "l", lty = 1, col = "red", xlab = lambda, ylab = ylab_1st, xlim = c(200, 450), ylim = c(-.05, 0.02))
+        , type = "l", lty = 1, col = "red", xlab = lambda, ylab = ylab_1st, xlim = c(200, 450), ylim = c(-.2, 0.0))
 
 matplot(bev$trs$prod$wl
         , t(bev$trs$prod$spc1st)[]
