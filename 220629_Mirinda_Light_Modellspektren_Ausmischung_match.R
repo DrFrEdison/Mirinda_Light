@@ -19,26 +19,25 @@ setwd("..")
 require(openxlsx)
 
 dir( pattern = "Q-xx-MTX-")
-dt$qxxmtx1 <- "Q-xx-MTX-00024-V01-00_Max_Lemon.xlsx"
+dt$qxxmtx1 <- "Q-xx-MTX-00026-V01-00_Mirinda_light.xlsx"
 
 istprozent1 <- openxlsx::read.xlsx(dt$qxxmtx1, sheet = "p_IST_g")
 istprozent <- istprozent1
 istprozent <- istprozent[ !is.na(istprozent$Acesulfam) , ]
-
-istprozent[ , "Coffein"][ istprozent[ , "SK"] > 100] <- istprozent[ , "SK"][ istprozent[ , "SK"] > 100]
 istprozent
 names(istprozent)[1] <- "Probe_Anteil"
 
 if( Acid == T){
   Acid1 <- openxlsx::read.xlsx(dt$qxxmtx1, sheet = "SA")
-  Acid1 <- Acid1[ , c("X1", "Total.Acid.(Labor)") ]
+  Acid1 <- Acid1[ , c("X1", "NaOH") ]
   Acid1 <- Acid1[ -1, ]
   FG <- Acid1[ Acid1$X1 == "FG" , ]
   Acid1 <- Acid1[ !is.na(as.numeric( substr(Acid1$X1, nchar( Acid1$X1 ) - 2, nchar( Acid1$X1 ) - 2) )) , ]
 
-  Acid1 <- Acid1[ Acid1$Total != 0 , ]
+  Acid1 <- Acid1[ Acid1$NaOH != 0 , ]
   Acid1 <- rbind(Acid1, FG)
-  istprozent <- cbind(istprozent, TA = as.numeric(c(Acid1$Total)))
+  istprozent <- cbind(istprozent, TA = as.numeric(c(Acid1$NaOH)))
+  istprozent$TA <- istprozent$TA * 10
 }
 
 # Model parameter ####
