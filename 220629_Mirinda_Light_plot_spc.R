@@ -69,8 +69,13 @@ mtx_plot_spc(dir = dt$wd.mastermodel
 
 # Plot and write subspectra ####
 dt$parameter
+<<<<<<< Updated upstream
 for(i in 1:length(dt$parameter) ){
   #for(i in c(1))
+=======
+#for(i in 3:length(dt$parameter) ){
+  for(i in c(5))
+>>>>>>> Stashed changes
   mtx_plot_spc(dir = dt$wd.mastermodel
                , beverage = dt$para$beverage
                , parameter = dt$parameter[ i ]
