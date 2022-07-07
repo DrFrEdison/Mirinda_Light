@@ -8,7 +8,7 @@ dt <- list()
 dt$para$customer = "PepsiCo"
 dt$para$beverage = "Mirinda_Light"
 
-setwd(paste0(dt$wd <- paste0(wd$fe[[ grep(dt$para$customer, names(wd$fe)) ]]$Mastermodelle, dt$para$beverage)))
+setwd(paste0(dt$wd <- paste0(r4dt::wd$fe[[ grep(dt$para$customer, names(r4dt::wd$fe)) ]]$Mastermodelle, dt$para$beverage)))
 setwd( print( this.path::this.dir() ) )
 dt$wd.git <- print( getwd() )
 
@@ -28,7 +28,7 @@ dt$para$wl[[1]] <- seq(dt$para$wl1, dt$para$wl2, 1)
 # Parameter ####
 dir()
 dir( paste0( dt$wd, "/", "/Modellerstellung", "/", dt$para$model.raw.date, "_", dt$para$model.raw.pl, "/spc"))
-dt$para$substance <- c("TA", "Aspartam",	"Acesulfam", "Topnote", "Flavor")
+dt$para$substance <- c("TA", "Aspartam",	"Acesulfam")
 
 # Unit ####
 dt$para$unit <- c( bquote("mg 100mL"-1),  bquote("mg L"-1),  bquote("mg L"-1),  bquote("mg L"-1),  bquote("mg L"-1) )
@@ -42,33 +42,46 @@ dt$para$SOLL <- c(43.9, 360.3, 85.15, NA, NA)
 dt$para$eingriff <- data.frame( TA = c(42.15, 45.65)
                                 , Aspartam = c(270.23, 371.11)
                                 , Acesulfam = c(82.6, 87.7)
-                                )
+)
 
 dt$para$sperr <- data.frame( TA = c(NA, NA)
                              , Aspartam = c(NA, NA )
                              , Acesulfam = c(NA, NA)
-                             )
+)
 #
 # # Modelloptimierung
-# dir( paste0( dt$wd, "/", "/Modelloptimierung") )
-# dt$para$mop.date <- "220617"
+dir( paste0( dt$wd, "/", "/Modelloptimierung") )
+dt$para$mop.date <- "220707"
 
 # Model Matrix Ausmischung ####
-# setwd(dt$wd)
-# setwd("./Modellerstellung")
-# setwd(paste0("./", dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1]))
-# setwd("./csv")
+setwd(dt$wd)
+setwd("./Modellerstellung")
+setwd(paste0("./", dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1]))
+setwd("./csv")
 
-# dt$model.raw <- read.csv2( print(grep( "match.csv", dir(), value = T)), dec = ",", sep = ";")
-# head10(dt$model.raw)
-#
-# for(i in 1:length(dt$para$substance)){
-#   if(dt$para$substance[i] == "TA" | dt$para$substance[i] == "TTA" | dt$para$substance[i] == "Acid") next
-#   dt$model.raw[ , colnames(dt$model.raw) %in% dt$para$substance[i]] <- dt$model.raw[ , colnames(dt$model.raw) %in% dt$para$substance[i]] * dt$para$SOLL[i] / 100
-# }
-#
-# dt$SL <- dt$model.raw[which(dt$model.raw$Probe_Anteil == "SL") , ]
-# dt$model.raw <- dt$model.raw[which(dt$model.raw$Probe_Anteil != "SL") , ]
+dt$model.raw <- read.csv2( print(grep( "Modellspektren_Ausmischung_match", dir(), value = T)), dec = ",", sep = ";")
+head10(dt$model.raw)
+
+for(i in 1:length(dt$para$substance)){
+  if(dt$para$substance[i] == "TA" | dt$para$substance[i] == "TTA" | dt$para$substance[i] == "Acid") next
+  dt$model.raw[ , colnames(dt$model.raw) %in% dt$para$substance[i]] <- dt$model.raw[ , colnames(dt$model.raw) %in% dt$para$substance[i]] * dt$para$SOLL[i] / 100
+}
+
+dt$SL <- dt$model.raw[which(dt$model.raw$Probe_Anteil == "SL") , ]
+dt$model.raw <- dt$model.raw[which(dt$model.raw$Probe_Anteil != "SL") , ]
+
+# VAS
+setwd(dt$wd)
+setwd("./Modellerstellung")
+setwd(paste0("./", dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1]))
+setwd("./csv")
+
+dt$vas$raw <- read.csv2( print(grep( "VASspektren_Ausmischung_match", dir(), value = T)), dec = ",", sep = ";")
+
+for(i in 1:length(dt$para$substance)){
+  if(dt$para$substance[i] == "TA" | dt$para$substance[i] == "TTA" | dt$para$substance[i] == "Acid") next
+  dt$vas$raw[ , colnames(dt$vas$raw) %in% dt$para$substance[i]] <- dt$vas$raw[ , colnames(dt$vas$raw) %in% dt$para$substance[i]] * dt$para$SOLL[i] / 100
+}
 
 # Modellvalidierung ####
 # dir( paste0( dt$wd, "/", "/Modellvalidierung") )

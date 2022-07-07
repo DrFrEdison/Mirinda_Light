@@ -1,6 +1,6 @@
 # beverage parameter ####
 setwd(this.path::this.dir())
-source.file <- print("Rsource_Max_Lemon_mtx_V01.R")
+source.file <- print("Rsource_Mirinda_Light_mtx_mop_val_V01.R")
 source( paste0(getwd(), "/", source.file) )
 
 # spectra ####
@@ -42,16 +42,28 @@ dt$raw$spc <- dt$raw$spc[ spectra.validation.range(valid.vector = dt$val$drk
 # validate ref ####
 matplot(dt$para$trs$ref$wl
         , t(dt$raw$ref[ , dt$para$trs$ref$numcol, with = F])
-        , lty = 1, type = "l")
+        , lty = 1, type = "l"
+        , xlim = c(190, 200), ylim = c(0, 1000))
+
+dt$val$ref <- rep("valid", length( dt$raw$ref ))
+dt$val$ref[ which(dt$raw$ref[ , dt$para$trs$ref$numcol, with = F][ , 1] < 200) ] <- "invalid"
+
+dt$raw$spc <-   dt$raw$spc[ spectra.validation.range(valid.vector = dt$val$ref
+                                                   , drkref.datetime = dt$raw$ref$datetime
+                                                   , spc.datetime = dt$raw$spc$datetime
+                                                   , pattern = "invalid") , ]
+
 
 # validate spc ####
-matplot(dt$para$trs$spc$wl
-        , t(dt$raw$spc[ , dt$para$trs$spc$numcol, with = F])
-        , lty = 1, type = "l")
+dt$raw$spc <- dt$raw$spc[ as.Date( dt$raw$spc$datetime ) > "2022-05-11" , ]
 
 plot(dt$raw$spc$X279)
-dt$raw$spc <- dt$raw$spc[ dt$raw$spc$X279 > .395 , ]
-dt$raw$spc <- dt$raw$spc[ dt$raw$spc$X279 < .42 , ]
+dt$raw$spc <- dt$raw$spc[ dt$raw$spc$X279 < .25 , ]
+dt$raw$spc <- dt$raw$spc[ dt$raw$spc$X279 > .15 , ]
+
+plot(dt$raw$spc$X220)
+xaxisdate(dt$raw$spc$datetime)
+
 
 matplot(dt$para$trs$spc$wl
         , t(dt$raw$spc[ , dt$para$trs$spc$numcol, with = F])

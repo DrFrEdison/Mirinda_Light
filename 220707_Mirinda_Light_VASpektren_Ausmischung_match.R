@@ -1,53 +1,65 @@
 # beverage parameter ####
 setwd(this.path::this.dir())
 dir( pattern = "_mtx_" )
-source.file <- print(dir( pattern = "_mtx_" )[ length( dir( pattern = "_mtx_" ))])
+source.file <- "Rsource_Mirinda_Light_mtx_mop_val_V01.R"
 source( paste0(getwd(), "/", source.file) )
 
-Acid <- T # Acid column in MTX file ?
+Acid <- "NaOH" # NA, NaOH or Total
 
 # read in data ####
 setwd(dt$wd)
 setwd("./Modellerstellung")
 setwd(paste0("./", dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1]))
-setwd("./spc")
-setwd( dt$wd.mastermodel <- getwd() )
+setwd("./Validierungsset")
+setwd( dt$wd.valset <- getwd() )
 
 # data from
-# read Q-xx-MTX
+# read Q-xx-VAS
 setwd("..")
 require(openxlsx)
 
-dir( pattern = "Q-xx-MTX-")
-dt$qxxmtx1 <- "Q-xx-MTX-00026-V01-00_Mirinda_light.xlsx"
+dir( pattern = "Q-xx-VAS-")
+dt$qxxmtx1 <- "Q-xx-VAS-00011-V01-00_Mirinda_light.xlsx"
 
 istprozent1 <- openxlsx::read.xlsx(dt$qxxmtx1, sheet = "p_IST_g")
+
 istprozent <- istprozent1
 istprozent <- istprozent[ !is.na(istprozent$Acesulfam) , ]
-istprozent
+
+istprozent[ , "Coffein"][ istprozent[ , "SK"] > 100] <- istprozent[ , "SK"][ istprozent[ , "SK"] > 100]
+
+
 names(istprozent)[1] <- "Probe_Anteil"
 
-if( Acid == T){
+if( Acid == "NaOH" | Acid == "Total"){
+
   Acid1 <- openxlsx::read.xlsx(dt$qxxmtx1, sheet = "SA")
-  Acid1 <- Acid1[ , c("X1", "NaOH") ]
+  Acid1 <- Acid1[ , c(grep("X1", colnames(Acid1)), grep(Acid, colnames(Acid1))) ]
   Acid1 <- Acid1[ -1, ]
+
+  if(Acid == "NaOH") Acid1[ , 2] <- as.numeric(Acid1[ , 2]) * 10
+
   FG <- Acid1[ Acid1$X1 == "FG" , ]
   Acid1 <- Acid1[ !is.na(as.numeric( substr(Acid1$X1, nchar( Acid1$X1 ) - 2, nchar( Acid1$X1 ) - 2) )) , ]
+  Acid1 <- Acid1[ Acid1[ , 2 ] != 0 , ]
+  Acid1 <- Acid1[ !is.na(Acid1[ , 2 ]) , ]
 
-  Acid1 <- Acid1[ Acid1$NaOH != 0 , ]
   Acid1 <- rbind(Acid1, FG)
-  istprozent <- cbind(istprozent, TA = as.numeric(c(Acid1$NaOH)))
-  istprozent$TA <- istprozent$TA * 10
+  istprozent <- cbind(istprozent, TA = as.numeric(c(Acid1[ , 2])))
 }
+
+istprozent <- istprozent[ - nrow(istprozent), -4]
 
 istprozent[ istprozent$FS > 101 , "Aspartam"] <- istprozent[ istprozent$FS > 101 , "FS"]
 istprozent[ istprozent$FS > 101 , "Acesulfam"] <- istprozent[ istprozent$FS > 101 , "FS"]
-istprozent[ istprozent$FS > 101 , "Topnote"] <- istprozent[ istprozent$FS > 101 , "FS"]
 istprozent[ istprozent$FS > 101 , "Flavor"] <- istprozent[ istprozent$FS > 101 , "FS"]
 
+
 # Model parameter ####
-setwd(dt$wd.mastermodel)
-dt$model$para <- print(colnames(istprozent)[ - c(1) ])
+setwd(dt$wd.valset)
+dt$model_para <- NULL
+para <- names(istprozent)[ - c(1) ]
+dt$model_para <- names(istprozent)[ - c(1) ]
 
 # read spc files ####
 meapre_s <- data.table()
@@ -112,8 +124,8 @@ mea_s_spc <- cbind(Probe=NA, Probe_Anteil = NA, mea_s_spc)
 # Probe
 mea_s_spc$Probe[grep("_SL_",mea_s_spc$files_spc)] <- "SL"
 
-for(i in 1:length(unique(dt$model$para)))
-  mea_s_spc$Probe[ grep( paste0( "_", dt$model$para[i], "_") , mea_s_spc$files_spc) ] <- dt$model$para[i]
+for(i in 1:length(unique(dt$model_para)))
+  mea_s_spc$Probe[ grep( paste0( "_", dt$model_para[i], "_") , mea_s_spc$files_spc) ] <- dt$model_para[i]
 
 mea_s_spc$Probe[grep("FG",mea_s_spc$files_spc)] <- "FG"
 
@@ -124,18 +136,18 @@ mea_s_spc$Probe
 mea_s_spc$Probe_Anteil[grep("_FG_",mea_s_spc$files_spc)] <- "FG_100%"
 istprozent$Probe_Anteil[ grep(paste("FG"), istprozent$Probe_Anteil) ] <- paste0("FG", "_100%")
 
-# for(i in 1:length(unique(dt$model$para))){
-for(i in 1:length(unique(dt$model$para))){
+# for(i in 1:length(unique(dt$model_para))){
+for(i in 1:length(unique(dt$model_para))){
 
-  para_prozent <- gsub(" ", "", gsub("_", ",", gsub("%", "", gsub(unique(dt$model$para)[i], "", istprozent[ , 1][ grep( paste0(unique(dt$model$para)[i], " ") , istprozent[ , 1]) ]))))
+  para_prozent <- gsub(" ", "", gsub("_", ",", gsub("%", "", gsub(unique(dt$model_para)[i], "", istprozent[ , 1][ grep( paste0(unique(dt$model_para)[i], " ") , istprozent[ , 1]) ]))))
 
   para_prozent_flag <- formatC(as.numeric(para_prozent), width = 2, format = "d", flag = "0")
 
   for(j in 1:length(para_prozent)){
 
-    mea_s_spc$Probe_Anteil[ grep( paste0("_", unique(dt$model$para)[i], "_", para_prozent[j]), mea_s_spc$files_spc)] <- paste0( unique(dt$model$para)[i], "_", para_prozent_flag[j], "%")
+    mea_s_spc$Probe_Anteil[ grep( paste0("_", unique(dt$model_para)[i], "_", para_prozent[j]), mea_s_spc$files_spc)] <- paste0( unique(dt$model_para)[i], "_", para_prozent_flag[j], "%")
 
-    istprozent$Probe_Anteil[ grep(paste(unique(dt$model$para)[i], para_prozent[j], "%"), istprozent$Probe_Anteil) ] <- paste0(unique(dt$model$para)[i], "_", para_prozent_flag[j], "%")
+    istprozent$Probe_Anteil[ grep(paste(unique(dt$model_para)[i], para_prozent[j], "%"), istprozent$Probe_Anteil) ] <- paste0(unique(dt$model_para)[i], "_", para_prozent_flag[j], "%")
 
   }
 }
@@ -149,6 +161,13 @@ head10(istprozentmeaspc)
 nrow(istprozentmeaspc)
 # View(istprozentmeaspc)
 
+# Dilution ####
+# Dilution <- substr(istprozentmeaspc$Probe_Anteil, nchar( istprozentmeaspc$Probe_Anteil ) - 3, nchar( istprozentmeaspc$Probe_Anteil ) - 1)
+# Dilution <- gsub("_", "", Dilution)
+# Dilution <- as.numeric(Dilution)
+#
+# Dilution[ grep("H2O", istprozentmeaspc$Probe_Anteil) ] <- 100 - Dilution[ grep("H2O", istprozentmeaspc$Probe_Anteil) ]
+
 istprozentmeaspc <- istprozentmeaspc[order(istprozentmeaspc$Probe_Anteil), ]
 
 istprozentmeaspc <- istprozentmeaspc[,moveme(names(istprozentmeaspc), "Probe first; files_spc first")]
@@ -158,9 +177,11 @@ names(istprozentmeaspc) <- gsub("X","",names(istprozentmeaspc))
 for(i in dt$para$wl[[1]]) istprozentmeaspc[ , which(names(istprozentmeaspc) == i)] <- as.numeric(as.character(istprozentmeaspc[ , which(names(istprozentmeaspc) == i)]))
 if(any(duplicated(istprozentmeaspc))) istprozentmeaspc <- istprozentmeaspc[ - which(duplicated(istprozentmeaspc)) , ]
 
+
+
 # write ####
-setwd(dt$wd.mastermodel)
+setwd(dt$wd.valset)
 setwd("..")
 setwd("./csv")
 
-write.csv2(istprozentmeaspc, paste0(dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1], "_", dt$para$beverage, "_Modellspektren_Ausmischung_match.csv"), row.names = F)
+write.csv2(istprozentmeaspc, paste0(dt$para$model.raw.date[1], "_", dt$para$model.raw.pl[1], "_", dt$para$beverage, "_VASspektren_Ausmischung_match.csv"), row.names = F)
