@@ -1,12 +1,12 @@
 # beverage parameter ####
 setwd(this.path::this.dir())
 dir( pattern = "_val_" )
-source.file <- "Rsource_Schwip_Schwap_Light_mtx_mop_val_V01.R"
+source.file <- "Rsource_Mirinda_Light_mtx_mop_val_V01.R"
 source( paste0(getwd(), "/", source.file) )
 
 # para ####
 dt$para$substance
-dt$para$i = 1
+dt$para$i = 3
 dt$para$substance[dt$para$i]
 
 # keep out ####
@@ -80,15 +80,15 @@ for(i in 1:length(dt$pred)){
        , sub = paste("Bias =", dt$bias[ i ]))
   xaxisdate(dt$trs[[ i ]]$data$datetime)
   abline( h = dt$para$SOLL[ dt$para$i ], col = "darkgreen", lty = 3, lwd = 1.5)
-  abline( h = dt$para$SOLL[ dt$para$i ] + dt$para$eingriff[ dt$para$i ] * c(1, -1), col = "orange", lty = 3, lwd = 1.5)
-  # abline( h = dt$para$SOLL[ dt$para$i ] + dt$para$sperr[ dt$para$i ] * c(1, -1), col = "red", lty = 3, lwd = 1.5)
+  abline( h = unlist( dt$para$eingriff[ dt$para$i ]), col = "orange", lty = 3, lwd = 1.5)
+  # abline( h = unlist(dt$para$sperr[ dt$para$i ]), col = "red", lty = 3, lwd = 1.5)
 }
 
 # Export for damn xlsx ####
 # Modell name ####
 setwd(dt$wd)
 setwd(paste0("./Mastermodell_", dt$para$model.raw.pl))
-dt$para$model.name <- grep("41", grep(  "Sre" , dir(), value = T), value = T)
+dt$para$model.name <- grep("41", grep(  dt$para$substance[dt$para$i] , dir(), value = T), value = T)
 dt$para$model.name
 dt$para$model.name <- dt$para$model.name[length(dt$para$model.name)]
 dt$para$model.name <- gsub(".41M", "", dt$para$model.name)
