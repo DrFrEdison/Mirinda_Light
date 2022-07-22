@@ -88,16 +88,16 @@ for(i in 1:length(dt$para$substance)){
 # dt$para$val.date <- "220524"
 #
 # # Linearity
-# setwd(dt$wd)
-# setwd("./Modellvalidierung")
-# setwd("./Linearitaet")
-# dir()
-# dt$lin$raw <- read.csv2( "220602_Schwip_Schwap_Light_Linearitaet_TA_Coffein_Aspartam_Acesulfam.csv" , sep = "\t")
-# dt$lin$raw <- dt$lin$raw[ order(dt$lin$raw$Dilution) , ]
-# dt$lin$trs <- transfer_csv(dt$lin$raw)
-#
-# dt$para$Charge.val <- c("")
-# dt$para$Charge.val.Sirup <- ""
+setwd(dt$wd)
+setwd("./Modellvalidierung")
+setwd("./Linearitaet")
+dir()
+dt$lin$raw <- read.csv2( "220602_Schwip_Schwap_Light_Linearitaet_TA_Coffein_Aspartam_Acesulfam.csv" , sep = "\t")
+dt$lin$raw <- dt$lin$raw[ order(dt$lin$raw$Dilution) , ]
+dt$lin$trs <- transfer_csv(dt$lin$raw)
+
+dt$para$Charge.val <- c("")
+dt$para$Charge.val.Sirup <- ""
 
 # rename R files (run only once)
 setwd(dt$wd.git)
